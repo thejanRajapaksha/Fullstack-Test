@@ -4,6 +4,8 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const multer = require("multer");
+const path = require("path");
 
 const app = express();
 const PORT = 5000;
@@ -204,6 +206,129 @@ app.put("/update-profile", authenticateToken, async (req, res) => {
     res.status(500).json({ message: "An error occurred while updating the profile." });
   }
 });
+
+// Set up storage for images using multer
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "uploads/"); // Directory to save uploaded images
+  },
+  filename: (req, file, cb) => {
+    cb(null, `${Date.now()}_${file.originalname}`);
+  },
+});
+
+const upload = multer({ storage });
+
+const roomSchema = new mongoose.Schema({
+  room_id: String,
+  room_name: String,
+  capacity: Number,
+  price: Number,
+  size: Number,
+  room_type: String,
+  pets: Boolean,
+  breakfast: Boolean,
+  details: String,
+  extras: [String],
+  images: [String],
+  status: { type: Number, default: 1 }, // 1: Active, 3: Removed
+});
+
+const Room = mongoose.model('Room', roomSchema);
+
+// Add Room Route with image upload
+app.post('/api/rooms', upload.array('images', 10), async (req, res) => {
+  const { room_id, room_name, capacity, price, size, room_type, pets, breakfast, details, extras } = req.body;
+  const images = req.files ? req.files.map(file => file.path) : [];
+
+  try {
+    const room = new Room({
+      room_id,
+      room_name,
+      capacity: parseInt(capacity),
+      price: parseFloat(price),
+      size: parseInt(size),
+      room_type,
+      pets: pets === 'true',
+      breakfast: breakfast === 'true',
+      details,
+      extras: extras ? extras.split(',') : [],
+      images,
+    });
+    await room.save();
+    res.json(room);
+  } catch (err) {
+    res.status(500).json({ message: 'Error saving room', error: err });
+  }
+});
+
+//Update Room
+app.put('/api/rooms/:id', upload.array('images', 10), async (req, res) => {
+  const { id } = req.params;
+  const { room_id, room_name, capacity, price, size, room_type, pets, breakfast, details, extras } = req.body;
+  const images = req.files ? req.files.map(file => file.path) : [];
+
+  try {
+    const updatedRoom = await Room.findByIdAndUpdate(id, {
+      room_id,
+      room_name,
+      capacity: parseInt(capacity),
+      price: parseFloat(price),
+      size: parseInt(size),
+      room_type,
+      pets: pets === 'true',
+      breakfast: breakfast === 'true',
+      details,
+      extras: extras ? extras.split(',') : [],
+      images: [...images],
+    }, { new: true });
+
+    res.json(updatedRoom);
+  } catch (err) {
+    res.status(500).json({ message: 'Error updating room', error: err });
+  }
+});
+
+// Fetch All Rooms Route (Only status = 1)
+app.get("/api/rooms", async (req, res) => {
+  try {
+    const rooms = await Room.find({ status: 1 }); // Only fetch rooms with status = 1
+    res.status(200).json(rooms);
+  } catch (err) {
+    res.status(500).json({ error: "Error fetching rooms." });
+  }
+});
+
+// Remove details of a room (Update status to 3)
+app.put("/api/rooms/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body; 
+
+    if (status !== 3) { 
+      return res.status(400).json({ error: "Invalid status value for deletion." });
+    }
+
+    const updatedRoom = await Room.findByIdAndUpdate(
+      id,
+      { status: 3 }, 
+      { new: true }
+    );
+
+    if (!updatedRoom) {
+      return res.status(404).json({ error: "Room not found." });
+    }
+
+    res.status(200).json({ message: "Room status updated to deleted." });
+  } catch (err) {
+    res.status(500).json({ error: "Error updating room status." });
+  }
+});
+
+
+// Serve static files from uploads folder
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
 
 // Start server
 app.listen(PORT, () => {

@@ -995,3 +995,378 @@ h2, h3 {
 }
 
 /* end of profile page */
+
+/* AdminPanel.jsx styles*/
+.admin-panel {
+  max-width: 1200px;
+  margin: 50px auto;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.admin-panel h2 {
+  font-size: 24px;
+  margin-bottom: 20px;
+  color: var(--primaryColor);
+  text-align: center;
+}
+
+.admin-panel .admin-links {
+  /*display: flex;
+  justify-content: space-around;
+  margin-bottom: 30px;*/
+  display: flex;
+  flex-wrap: wrap; /* Allows links to wrap to the next line if needed */
+  justify-content: center; /* Center the links */
+  gap: 20px; /* Add spacing between links */
+  margin-bottom: 30px;
+  list-style: none; /* Remove bullet points if it’s a list */
+  padding: 0;
+  
+}
+
+.admin-panel .admin-link a {
+  /*text-decoration: none;
+  padding: 10px 20px;
+  background-color: var(--primaryColor);
+  color: white;
+  border-radius: 5px;
+  font-size: 16px;
+  transition: background-color 0.3s ease;*/
+  display: inline-block;
+  text-decoration: none;
+  padding: 10px 20px;
+  background-color: var(--primaryColor);
+  color: #6d6550;
+  border-radius: 5px;
+  font-size: 16px;
+  font-weight: bold;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  text-align: center;
+}
+
+.admin-panel .admin-link a:hover {
+  background-color: var(--secondaryColor);
+  transform: scale(1.05); /* Slight zoom effect on hover */
+}
+
+
+/* end of AdminPanel.jsx */
+
+
+/* BookingRequests.jsx styles */
+.booking-requests {
+  max-width: 1000px;
+  margin: 20px auto;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.booking-requests h2 {
+  font-size: 22px;
+  color: var(--primaryColor);
+  margin-bottom: 15px;
+}
+
+.booking-requests .request-card {
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 15px;
+  margin-bottom: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.booking-requests .request-card .details {
+  font-size: 14px;
+  color: #555;
+}
+
+.booking-requests .request-card .actions button {
+  padding: 8px 15px;
+  margin-left: 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+}
+
+.booking-requests .request-card .actions .accept-btn {
+  background-color: #4caf50;
+  color: white;
+}
+
+.booking-requests .request-card .actions .accept-btn:hover {
+  background-color: #45a049;
+}
+
+.booking-requests .request-card .actions .reject-btn {
+  background-color: #f44336;
+  color: white;
+}
+
+.booking-requests .request-card .actions .reject-btn:hover {
+  background-color: #e53935;
+}
+
+/* end of BookingRequests.jsx */
+
+
+/* GuestManagement.jsx styles */
+.guest-management {
+  max-width: 1000px;
+  margin: 20px auto;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.guest-management h2 {
+  font-size: 22px;
+  color: var(--primaryColor);
+  margin-bottom: 15px;
+}
+
+.guest-management table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.guest-management table th,
+.guest-management table td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: left;
+}
+
+.guest-management table th {
+  background-color: var(--primaryColor);
+  color: white;
+}
+
+.guest-management table td .action-btn {
+  padding: 5px 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.guest-management table td .delete-btn {
+  background-color: #f44336;
+  color: white;
+}
+
+.guest-management table td .delete-btn:hover {
+  background-color: #e53935;
+}
+
+/* end of GuestManagement.jsx */
+
+
+/* GuestProfiles.jsx styles */
+.guest-profiles {
+  max-width: 1000px;
+  margin: 20px auto;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.guest-profiles h2 {
+  font-size: 22px;
+  color: var(--primaryColor);
+  margin-bottom: 15px;
+}
+
+.guest-profiles .profile-card {
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 15px;
+  margin-bottom: 15px;
+}
+
+.guest-profiles .profile-card .profile-details {
+  font-size: 14px;
+  color: #555;
+}
+
+.guest-profiles .profile-card .profile-details p {
+  margin: 5px 0;
+}
+
+/* end of GuestProfiles.jsx */
+
+
+/* RoomAvailability.jsx styles */
+.room-availability {
+  max-width: 1000px;
+  margin: 20px auto;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.room-availability h2 {
+  font-size: 22px;
+  color: var(--primaryColor);
+  margin-bottom: 15px;
+}
+
+.room-availability table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.room-availability table th,
+.room-availability table td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: center;
+}
+
+.room-availability table th {
+  background-color: var(--primaryColor);
+  color: white;
+}
+
+.room-availability .status-occupied {
+  color: red;
+  font-weight: bold;
+}
+
+.room-availability .status-vacant {
+  color: green;
+  font-weight: bold;
+}
+
+.room-availability .status-maintenance {
+  color: orange;
+  font-weight: bold;
+}
+
+/* end of RoomAvailability.jsx */
+
+
+/* RoomManagement.jsx styles */
+.room-management {
+  max-width: 100%;
+  margin: 20px auto;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.room-management h3 {
+  font-size: 22px;
+  color: var(--primaryColor);
+  margin-bottom: 15px;
+}
+
+.room-management .content-wrapper {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+/* Left form section */
+.room-management .room-form {
+  flex: 1;
+  max-width: 300px;
+}
+
+.room-management .room-form input,
+.room-management .room-form textarea {
+  width: 100%;
+  padding: 8px;
+  margin: 10px 0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.room-management .room-form button {
+  padding: 10px 15px;
+  background-color: var(--primaryColor);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.room-management .room-form button:hover {
+  background-color: var(--secondaryColor);
+}
+
+.room-management .room-form .checkbox-container {
+  display: flex;
+  gap: 35px; 
+  align-items: center; 
+}
+
+.room-management .room-form .room-type-container {
+  display: flex;
+  align-items: center;  
+  gap: 30px;  
+  margin-bottom: 10px;  
+}
+
+/* Right table section */
+.room-management .room-table-container {
+  flex: 3;
+  overflow-x: auto;
+}
+
+.room-management .room-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 0;
+}
+
+.room-management .room-table th,
+.room-management .room-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: center;
+}
+
+.room-management .room-table th {
+  background-color: var(--primaryColor);
+  color: white;
+}
+
+.room-management .room-table tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+.room-management .room-table tr:hover {
+  background-color: #ddd;
+}
+
+.room-management .room-table button {
+  margin: 0 5px;
+  padding: 5px 10px;
+  background-color: var(--primaryColor);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.room-management .room-table button:hover {
+  background-color: var(--secondaryColor);
+}
+
+
+/* end of RoomManagement.jsx */

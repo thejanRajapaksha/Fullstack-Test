@@ -1,10 +1,9 @@
-import React, { Component } from "react";
+import React, { Component, createContext, useState } from "react";
+//import items from "../Data/data";
 
-// import data
-import items from "../Data/data";
-
-// react context-api
-const RoomContext = React.createContext();
+// React Contexts
+const RoomContext = createContext();
+const UserContext = createContext();
 
 class RoomProvider extends Component {
   state = {
@@ -23,31 +22,29 @@ class RoomProvider extends Component {
     pets: false,
   };
 
-  // getDate
+  //Updated componentDidMount
   componentDidMount() {
-    // this.getData
-    let rooms = this.formatDate(items);
-    let featuredRooms = rooms.filter((room) => room.featured === true);
+    Promise.all([fetch("/api/roomtypes"), fetch("/api/rooms")])
+      .then(([roomTypesRes, roomsRes]) => Promise.all([roomTypesRes.json(), roomsRes.json()]))
+      .then(([roomTypes, rooms]) => {
+        let formattedRooms = this.formatData(rooms);
+        let featuredRooms = formattedRooms.filter((room) => room.featured === true);
 
-    let maxPrice = Math.max(...rooms.map((item) => item.price));
-    let maxSize = Math.max(...rooms.map((item) => item.size));
+        this.setState({
+          rooms: formattedRooms,
+          sortedRooms: formattedRooms,
+          featuredRooms,
+          loading: false,
+        });
+      })
+      .catch((error) => console.error("Error fetching rooms:", error));
+}
 
-    this.setState({
-      rooms,
-      featuredRooms,
-      sortedRooms: rooms,
-      loading: false,
-      price: maxPrice,
-      maxPrice,
-      maxSize,
-    });
-  }
 
-  formatDate(items) {
+  formatData(items) {
     let tempItems = items.map((item) => {
       let id = item.sys.id;
       let images = item.fields.images.map((image) => image.fields.file.url);
-
       let room = { ...item.fields, images, id };
       return room;
     });
@@ -61,17 +58,9 @@ class RoomProvider extends Component {
   };
 
   handleChange = (event) => {
-    /* const type = event.target.type;
-    const name = event.target.name;
-    const value = event.target.value; */
-    /* console.log(
-      `this is type: ${type}, this is name: ${name}, this is value: ${value}`
-    ); */
-
     const target = event.target;
     const value = target.type === "checkbox" ? target.checked : target.value;
     const name = event.target.name;
-    console.log(target, value, name);
 
     this.setState(
       {
@@ -93,42 +82,27 @@ class RoomProvider extends Component {
       pets,
     } = this.state;
 
-    // all the room
     let tempRooms = [...rooms];
-
-    // transform value
     capacity = parseInt(capacity);
     price = parseInt(price);
 
-    // filter by type
     if (type !== "all") {
       tempRooms = tempRooms.filter((room) => room.type === type);
     }
-
-    // filter by capacity
     if (capacity !== 1) {
       tempRooms = tempRooms.filter((room) => room.capacity >= capacity);
     }
-
-    // filter by price
     tempRooms = tempRooms.filter((room) => room.price <= price);
-
-    // filter bt size
     tempRooms = tempRooms.filter(
       (room) => room.size >= minSize && room.size <= maxSize
     );
-
-    // filter by breakfast
     if (breakfast) {
       tempRooms = tempRooms.filter((room) => room.breakfast === true);
     }
-
-    // filter by pets
     if (pets) {
       tempRooms = tempRooms.filter((room) => room.pets === true);
     }
 
-    // change state
     this.setState({
       sortedRooms: tempRooms,
     });
@@ -149,9 +123,11 @@ class RoomProvider extends Component {
   }
 }
 
+// Adding the withRoomConsumer function
 const RoomConsumer = RoomContext.Consumer;
 
-export function withRoomConsumer(Component) {
+//export function withRoomConsumer(Component) {
+  const withRoomConsumer = (Component) => {
   return function ConsumerWrapper(props) {
     return (
       <RoomConsumer>
@@ -161,4 +137,31 @@ export function withRoomConsumer(Component) {
   };
 }
 
-export { RoomProvider, RoomConsumer, RoomContext };
+// User Context Provider for managing user authentication and roles
+const UserProvider = ({ children }) => {
+  const [user, setUser] = useState(() => {
+    const storedUser = localStorage.getItem("user");
+    return storedUser ? JSON.parse(storedUser) : null;
+  });
+
+  const login = (userData) => {
+    setUser(userData);
+    localStorage.setItem("user", JSON.stringify(userData));
+  };
+
+  const logout = () => {
+    setUser(null);
+    localStorage.removeItem("user");
+  };
+
+  return (
+    <UserContext.Provider value={{ user, login, logout }}>
+      {children}
+    </UserContext.Provider>
+  );
+};
+
+export { RoomProvider, UserProvider, RoomContext, UserContext, withRoomConsumer };
+
+
+

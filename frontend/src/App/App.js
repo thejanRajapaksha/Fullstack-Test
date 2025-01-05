@@ -12,6 +12,9 @@ import ContactUs from "../Pages/ContactUs";
 import Login from "../Pages/Login";
 import Signup from "../Pages/Sign Up";
 import Profile from "../Pages/Profile";
+import AdminPanel from "../Pages/Admin/AdminPanel";
+import RoomManagement from "../Pages/Admin/RoomManagement";
+
 import Error from "../Pages/Error";
 
 // import components
@@ -31,6 +34,8 @@ function App() {
         <Route exact path="/login" component={Login} />
         <Route exact path="/signup" component={Signup} />
         <Route exact path="/profile" component={Profile} />
+        <Route exact path="/admin" component={AdminPanel}/>
+        <Route exact path="/admin/rooms" component={RoomManagement} />
         <Route component={Error} />
       </Switch>
       <Footer />

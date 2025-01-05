@@ -60,6 +60,9 @@ export default class Navbar extends Component {
             <li>
               <Link to="/contact-us">Contact Us</Link>
             </li>
+            <li>
+                <Link to="/admin">Admin Panel</Link>
+            </li>
             {!localStorage.getItem("token") && (
               <li>
                 <Link to="/login">Login</Link>
