@@ -13,7 +13,7 @@ function RoomManagement() {
     room_type: "Single", // Default room type
     pets: false,
     breakfast: false,
-    details: "",
+    description: "",
     extras: "",
     images: "",
   });
@@ -31,28 +31,27 @@ function RoomManagement() {
       .catch((err) => console.error("Error fetching rooms:", err));
   }, []);
 
-  // Handle Add or Update Room
   const handleAddOrUpdateRoom = () => {
     const formData = new FormData();
     formData.append("room_id", newRoom.room_id);
     formData.append("room_name", newRoom.room_name);
     formData.append("capacity", parseInt(newRoom.capacity, 10) || 0);
     formData.append("price", parseFloat(newRoom.price) || 0);
-    formData.append("size", parseInt(newRoom.size) || 0);
+    formData.append("size", parseInt(newRoom.size, 10) || 0);
     formData.append("room_type", newRoom.room_type);
-    formData.append("details", newRoom.details);
+    formData.append("description", newRoom.description);
     formData.append("pets", newRoom.pets);
     formData.append("breakfast", newRoom.breakfast);
     formData.append("extras", newRoom.extras);
-
+  
     Array.from(newRoom.images).forEach((image) => {
       formData.append("images", image);
     });
-
+  
     const url = isEditMode
       ? `http://localhost:5000/api/rooms/${editingRoomId}`
-      : "http://localhost:5000/api/rooms";
-
+      : `http://localhost:5000/api/rooms`;
+  
     fetch(url, {
       method: isEditMode ? "PUT" : "POST",
       body: formData,
@@ -68,10 +67,64 @@ function RoomManagement() {
           // Add the new room to the list
           setRooms((prevRooms) => [...prevRooms, room]);
         }
+  
+        // Update the local data.js file on the backend
+        updateLocalDataJs(room);
+  
         resetForm();
       })
       .catch((error) => console.error("Error adding/updating room:", error));
   };
+  
+  // Function to update the local data.js file (send data to backend)
+  const updateLocalDataJs = (room) => {
+    const newRoomData = {
+      sys: { id: room.room_id },
+      fields: {
+        name: room.room_name,
+        slug: `${room.room_type}-standard`,
+        type: room.room_type,
+        price: room.price,
+        size: room.size,
+        capacity: room.capacity,
+        pets: room.pets,
+        breakfast: room.breakfast,
+        featured: false,
+        description: room.description,
+        extras: room.extras,
+        images: [
+          ...room.images.map((img) => ({
+            fields: { file: { url: img } },
+          })),
+          {
+            fields: { file: { url: 'C:\\Users\\oshan\\OneDrive - NSBM\\NSBM\\3 year\\PUSL3120 Full-Stack Development\\Coursework\\Fullstack-Test\\backend\\assets\\img\\jpeg\\details-2.jpeg' } },
+          },
+          {
+            fields: { file: { url: 'C:\\Users\\oshan\\OneDrive - NSBM\\NSBM\\3 year\\PUSL3120 Full-Stack Development\\Coursework\\Fullstack-Test\\backend\\assets\\img\\jpeg\\details-3.jpeg' } },
+          },
+          {
+            fields: { file: { url: 'C:\\Users\\oshan\\OneDrive - NSBM\\NSBM\\3 year\\PUSL3120 Full-Stack Development\\Coursework\\Fullstack-Test\\backend\\assets\\img\\jpeg\\details-4.jpeg' } },
+          },
+        ],
+      },
+    };
+    
+  
+    // Send the new room data to the backend to update data.js
+    fetch('http://localhost:5000/api/update-local-data', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify( newRoomData ),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        console.log('Data updated successfully:', data);
+      })
+      .catch((error) => {
+        console.error('Error updating data:', error);
+      });
+  };  
+  
 
   // Load room data into form for editing
   const handleEditRoom = (room) => {
@@ -84,7 +137,7 @@ function RoomManagement() {
       room_type: room.room_type,
       pets: room.pets,
       breakfast: room.breakfast,
-      details: room.details,
+      description: room.description,
       extras: room.extras.join(", "),
       images: "",
     });
@@ -103,7 +156,7 @@ function RoomManagement() {
       room_type: "Single",
       pets: false,
       breakfast: false,
-      details: "",
+      description: "",
       extras: "",
       images: "",
     });
@@ -143,42 +196,48 @@ function RoomManagement() {
       <div className="content-wrapper">
         {/* Left Form Section */}
         <div className="room-form">
+          <label>Room ID</label>
           <input
             type="text"
-            placeholder="Room ID"
             value={newRoom.room_id}
             onChange={(e) => setNewRoom({ ...newRoom, room_id: e.target.value })}
           />
+
+          <label>Room Name</label>
           <input
             type="text"
-            placeholder="Room Name"
             value={newRoom.room_name}
             onChange={(e) => setNewRoom({ ...newRoom, room_name: e.target.value })}
           />
+
+          <label>Capacity</label>
           <input
             type="number"
-            placeholder="Capacity"
             value={newRoom.capacity}
             onChange={(e) => setNewRoom({ ...newRoom, capacity: e.target.value })}
           />
+
+          <label>Size</label>
           <input
             type="number"
-            placeholder="Size"
             value={newRoom.size}
             onChange={(e) => setNewRoom({ ...newRoom, size: e.target.value })}
           />
+
+          <label>Room Description</label>
           <input
             type="text"
-            placeholder="Room Details"
-            value={newRoom.details}
-            onChange={(e) => setNewRoom({ ...newRoom, details: e.target.value })}
+            value={newRoom.description}
+            onChange={(e) => setNewRoom({ ...newRoom, description: e.target.value })}
           />
+
+          <label>Price</label>
           <input
             type="number"
-            placeholder="Price"
             value={newRoom.price}
             onChange={(e) => setNewRoom({ ...newRoom, price: e.target.value })}
           />
+
           <div className="room-type-container">
             <label htmlFor="room-type">Room Type</label>
             <select
@@ -192,43 +251,49 @@ function RoomManagement() {
               <option value="Presidential">Presidential</option>
             </select>
           </div>
+
+          <label>Extras (comma-separated)</label>
           <textarea
-            placeholder="Extras (comma-separated)"
             value={newRoom.extras}
             onChange={(e) => setNewRoom({ ...newRoom, extras: e.target.value })}
           />
+
           <div className="checkbox-container">
-            <label>Allow Pets
+            <label>
+              Allow Pets
               <input
                 type="checkbox"
                 checked={newRoom.pets}
                 onChange={(e) =>
                   setNewRoom({ ...newRoom, pets: e.target.checked })
                 }
-              />             
+              />
             </label>
-            <label>Include Breakfast
+
+            <label>
+              Include Breakfast
               <input
                 type="checkbox"
                 checked={newRoom.breakfast}
                 onChange={(e) =>
                   setNewRoom({ ...newRoom, breakfast: e.target.checked })
                 }
-              />              
+              />
             </label>
           </div>
+
+          <label>Images</label>
           <input
             type="file"
             multiple
             accept="image/*"
             onChange={handleFileChange}
           />
+
           <button onClick={handleAddOrUpdateRoom}>
             {isEditMode ? "Update Room" : "Add Room"}
           </button>
-          {isEditMode && (
-            <button onClick={resetForm}>Cancel Edit</button>
-          )}
+          {isEditMode && <button onClick={resetForm}>Cancel Edit</button>}
         </div>
 
         {/* Right Table Section */}
@@ -242,7 +307,7 @@ function RoomManagement() {
                 <th>Price</th>
                 <th>Size</th>
                 <th>Room Type</th>
-                <th>Details</th>
+                <th>Description</th>
                 <th>Pets</th>
                 <th>Breakfast</th>
                 <th>Extras</th>
@@ -261,7 +326,7 @@ function RoomManagement() {
                     <td>${room.price}</td>
                     <td>{room.size} sq ft</td>
                     <td>{room.room_type}</td>
-                    <td>{room.details}</td>
+                    <td>{room.description}</td>
                     <td>{room.pets ? "Yes" : "No"}</td>
                     <td>{room.breakfast ? "Yes" : "No"}</td>
                     <td>{room.extras.join(", ")}</td>

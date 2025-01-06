@@ -757,6 +757,49 @@ const data = [
       ],
     },
   },
+  {
+    "sys": {
+      "id": "19"
+    },
+    "fields": {
+      "name": "das",
+      "slug": "Single-standard",
+      "type": "Single",
+      "price": 2,
+      "size": 2,
+      "capacity": 2,
+      "pets": true,
+      "breakfast": false,
+      "featured": false,
+      "description": "dc",
+      "extras": [
+        "s"
+      ],
+      "images": [
+        {
+          "fields": {
+            "file": {
+              "url": room1
+            }
+          }
+        },
+        {
+          "fields": {
+            "file": {
+              "url": room2
+            }
+          }
+        },
+        {
+          "fields": {
+            "file": {
+              "url": room3
+            }
+          }
+        }
+      ]
+    }
+  },
 ];
 
 export default data;

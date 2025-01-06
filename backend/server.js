@@ -6,6 +6,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const multer = require("multer");
 const path = require("path");
+const fs = require("fs");
 
 const app = express();
 const PORT = 5000;
@@ -228,7 +229,7 @@ const roomSchema = new mongoose.Schema({
   room_type: String,
   pets: Boolean,
   breakfast: Boolean,
-  details: String,
+  description: String,
   extras: [String],
   images: [String],
   status: { type: Number, default: 1 }, // 1: Active, 3: Removed
@@ -238,7 +239,7 @@ const Room = mongoose.model('Room', roomSchema);
 
 // Add Room Route with image upload
 app.post('/api/rooms', upload.array('images', 10), async (req, res) => {
-  const { room_id, room_name, capacity, price, size, room_type, pets, breakfast, details, extras } = req.body;
+  const { room_id, room_name, capacity, price, size, room_type, pets, breakfast, description, extras } = req.body;
   const images = req.files ? req.files.map(file => file.path) : [];
 
   try {
@@ -251,7 +252,7 @@ app.post('/api/rooms', upload.array('images', 10), async (req, res) => {
       room_type,
       pets: pets === 'true',
       breakfast: breakfast === 'true',
-      details,
+      description,
       extras: extras ? extras.split(',') : [],
       images,
     });
@@ -265,7 +266,7 @@ app.post('/api/rooms', upload.array('images', 10), async (req, res) => {
 //Update Room
 app.put('/api/rooms/:id', upload.array('images', 10), async (req, res) => {
   const { id } = req.params;
-  const { room_id, room_name, capacity, price, size, room_type, pets, breakfast, details, extras } = req.body;
+  const { room_id, room_name, capacity, price, size, room_type, pets, breakfast, description, extras } = req.body;
   const images = req.files ? req.files.map(file => file.path) : [];
 
   try {
@@ -278,7 +279,7 @@ app.put('/api/rooms/:id', upload.array('images', 10), async (req, res) => {
       room_type,
       pets: pets === 'true',
       breakfast: breakfast === 'true',
-      details,
+      description,
       extras: extras ? extras.split(',') : [],
       images: [...images],
     }, { new: true });
@@ -325,10 +326,68 @@ app.put("/api/rooms/:id", async (req, res) => {
   }
 });
 
-
 // Serve static files from uploads folder
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
+// Path to the data.js file (assuming it's in the same directory as server.js)
+const dataFilePath = path.join(__dirname, 'details.js');
+
+// API endpoint to update the data.js file
+app.post('/api/update-local-data', (req, res) => {
+  const newRoomData = req.body; // Access req.body directly
+
+  if (!newRoomData.sys || !newRoomData.fields) {
+    return res.status(400).json({ error: 'Invalid room data format' });
+  }
+
+  console.log('Received new room data:', newRoomData);
+
+  // Step 1: Load current data
+  let currentData;
+  try {
+    currentData = require(dataFilePath);
+  } catch (error) {
+    console.error('Error loading details.js:', error);
+    return res.status(500).json({ error: 'Failed to parse data.js file' });
+  }
+
+  // Step 2: Append the new room data
+  currentData.push(newRoomData);
+
+  // Step 3: Write back to the file
+  try {
+    fs.writeFileSync(dataFilePath, `module.exports = ${JSON.stringify(currentData, null, 2)};`, 'utf8');
+    console.log('Data updated successfully');
+    res.status(200).json({ message: 'Data updated successfully' });
+  } catch (error) {
+    console.error('Error writing to data.js file:', error);
+    return res.status(500).json({ error: 'Failed to write to data.js file' });
+  }
+});
+
+
+// API endpoint to fetch the whole data.js
+app.get('/api/get-room-data', (req, res) => {
+  fs.readFile(dataFilePath, 'utf8', (err, data) => {
+    if (err) {
+      return res.status(500).json({ error: 'Failed to read data.js file' });
+    }
+
+    res.status(200).json(JSON.parse(data)); // Send the data to the frontend
+  });
+});
+
+// Serve the details.js file when requested
+app.get('/api/details', (req, res) => {
+  try {
+    // Load the array from details.js
+    const rooms = require('./details');
+    res.json(rooms); // Send the array as a JSON response
+  } catch (error) {
+    console.error('Error loading room details:', error);
+    res.status(500).send('Error loading room details');
+  }
+});
 
 // Start server
 app.listen(PORT, () => {
