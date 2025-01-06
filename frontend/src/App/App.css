@@ -1368,5 +1368,72 @@ h2, h3 {
   background-color: var(--secondaryColor);
 }
 
-
 /* end of RoomManagement.jsx */
+
+/* GuestManagement.css */
+.guest-management-container {
+  margin: 20px;
+  font-family: Arial, sans-serif;
+}
+
+h2 {
+  text-align: center;
+  color: #333;
+}
+
+.guest-management-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.guest-management-table th,
+.guest-management-table td {
+  padding: 12px;
+  border: 1px solid #ddd;
+  text-align: left;
+}
+
+.guest-management-table th {
+  background-color: #f4f4f4;
+}
+
+.guest-management-table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.guest-management-table tr:hover {
+  background-color: #f1f1f1;
+}
+
+button {
+  padding: 6px 12px;
+  margin-right: 8px;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+button:hover {
+  opacity: 0.8;
+}
+
+input {
+  padding: 6px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+}
+
+input[type="text"], input[type="email"] {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Specific styles for activation/deactivation buttons */
+.active-btn {
+  background-color: #4CAF50; /* Green for active users */
+}
+
+.inactive-btn {
+  background-color: #f44336; /* Red for inactive users */
+}

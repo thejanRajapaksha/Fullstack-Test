@@ -14,7 +14,7 @@ import Signup from "../Pages/Sign Up";
 import Profile from "../Pages/Profile";
 import AdminPanel from "../Pages/Admin/AdminPanel";
 import RoomManagement from "../Pages/Admin/RoomManagement";
-
+import GuestManagement from '../Pages/Admin/GuestManagement'; 
 import Error from "../Pages/Error";
 
 // import components
@@ -36,6 +36,7 @@ function App() {
         <Route exact path="/profile" component={Profile} />
         <Route exact path="/admin" component={AdminPanel}/>
         <Route exact path="/admin/rooms" component={RoomManagement} />
+        <Route exact path="/admin/guests" component={GuestManagement} />
         <Route component={Error} />
       </Switch>
       <Footer />

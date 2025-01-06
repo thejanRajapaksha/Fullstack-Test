@@ -35,6 +35,7 @@ const userSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
+  status: { type: Number, default: 1 },
 });
 
 const User = mongoose.model("User", userSchema);
@@ -67,7 +68,7 @@ app.post("/signup", async (req, res) => {
 
   const hashedPassword = await bcrypt.hash(password, 10);
 
-  const newUser = new User({ name, email, password: hashedPassword });
+  const newUser = new User({ name, email, password: hashedPassword, status: 1 });
   try {
     await newUser.save();
     res.status(201).json({ message: "User registered successfully." });
@@ -89,6 +90,13 @@ app.post("/login", async (req, res) => {
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       return res.status(400).json({ success: false, error: "Invalid password." });
+    }
+
+    if (user.status === 2) {
+      return res.status(403).json({ 
+        success: false, 
+        error: "Your account has been deactivated by the admin." 
+      });
     }
 
     // Generate JWT token
@@ -208,6 +216,7 @@ app.put("/update-profile", authenticateToken, async (req, res) => {
   }
 });
 
+// Start Room Management
 // Set up storage for images using multer
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -365,7 +374,6 @@ app.post('/api/update-local-data', (req, res) => {
   }
 });
 
-
 // API endpoint to fetch the whole data.js
 app.get('/api/get-room-data', (req, res) => {
   fs.readFile(dataFilePath, 'utf8', (err, data) => {
@@ -388,6 +396,35 @@ app.get('/api/details', (req, res) => {
     res.status(500).send('Error loading room details');
   }
 });
+//End Room Management
+
+// Start Guest Management
+// Fetch all users
+app.get("/api/guestManagement", async (req, res) => {
+  try {
+    const users = await User.find();
+    res.json(users);
+  } catch (err) {
+    res.status(500).json({ message: "Error fetching users." });
+  }
+});
+
+// Update user details and status
+app.put("/api/guestManagement/:id", async (req, res) => {
+  const { name, email, status } = req.body;
+  
+  try {
+    const updatedUser = await User.findByIdAndUpdate(
+      req.params.id,
+      { name, email, status },
+      { new: true }
+    );
+    res.json(updatedUser);
+  } catch (err) {
+    res.status(500).json({ message: "Error updating user." });
+  }
+});
+// End Guest Management
 
 // Start server
 app.listen(PORT, () => {

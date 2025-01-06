@@ -59,10 +59,12 @@ export default class Navbar extends Component {
             </li>
             <li>
               <Link to="/contact-us">Contact Us</Link>
-            </li>
-            <li>
+            </li>           
+            {localStorage.getItem("userData") && JSON.parse(localStorage.getItem("userData")).name === "admin" && (
+              <li>
                 <Link to="/admin">Admin Panel</Link>
-            </li>
+              </li>
+            )}
             {!localStorage.getItem("token") && (
               <li>
                 <Link to="/login">Login</Link>
