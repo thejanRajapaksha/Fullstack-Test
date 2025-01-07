@@ -43,6 +43,7 @@ function RoomManagement() {
     formData.append("pets", newRoom.pets);
     formData.append("breakfast", newRoom.breakfast);
     formData.append("extras", newRoom.extras);
+    formData.append("status", 1);
   
     Array.from(newRoom.images).forEach((image) => {
       formData.append("images", image);
@@ -89,21 +90,22 @@ function RoomManagement() {
         capacity: room.capacity,
         pets: room.pets,
         breakfast: room.breakfast,
-        featured: false,
+        featured: true,
         description: room.description,
         extras: room.extras,
+        status: room.status,
         images: [
           ...room.images.map((img) => ({
             fields: { file: { url: img } },
           })),
           {
-            fields: { file: { url: 'C:\\Users\\oshan\\OneDrive - NSBM\\NSBM\\3 year\\PUSL3120 Full-Stack Development\\Coursework\\Fullstack-Test\\backend\\assets\\img\\jpeg\\details-2.jpeg' } },
+            fields: { file: { url: 'details-2.jpeg' } },
           },
           {
-            fields: { file: { url: 'C:\\Users\\oshan\\OneDrive - NSBM\\NSBM\\3 year\\PUSL3120 Full-Stack Development\\Coursework\\Fullstack-Test\\backend\\assets\\img\\jpeg\\details-3.jpeg' } },
+            fields: { file: { url: 'details-3.jpeg' } },
           },
           {
-            fields: { file: { url: 'C:\\Users\\oshan\\OneDrive - NSBM\\NSBM\\3 year\\PUSL3120 Full-Stack Development\\Coursework\\Fullstack-Test\\backend\\assets\\img\\jpeg\\details-4.jpeg' } },
+            fields: { file: { url: 'details-4.jpeg' } },
           },
         ],
       },
@@ -172,10 +174,10 @@ function RoomManagement() {
 
   // Handle Delete Room
   const handleDeleteRoom = (id) => {
-    fetch(`http://localhost:5000/api/rooms/${id}`, {
-      method: "PUT",
+    fetch(`http://localhost:5000/api/update-room-status`, {
+      method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: 3 }),
+      body: JSON.stringify({ id, status: 3 }),
     })
       .then((res) => {
         if (!res.ok) {
@@ -183,7 +185,7 @@ function RoomManagement() {
         }
         setRooms((prevRooms) =>
           prevRooms.map((room) =>
-            room._id === id ? { ...room, status: 3 } : room
+            room.room_id === id ? { ...room, status: 3 } : room
           )
         );
       })
@@ -343,7 +345,7 @@ function RoomManagement() {
                     </td>
                     <td>
                       <button onClick={() => handleEditRoom(room)}>Edit</button>
-                      <button onClick={() => handleDeleteRoom(room._id)}>
+                      <button onClick={() => handleDeleteRoom(room.room_id)}>
                         Remove
                       </button>
                     </td>

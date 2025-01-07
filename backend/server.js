@@ -12,7 +12,7 @@ const app = express();
 const PORT = 5000;
 
 // JWT secret key
-const JWT_SECRET = "your_secret_key"; // Replace with a secure secret key
+const JWT_SECRET = "my_secret_key"; 
 
 // Middleware
 app.use(cors());
@@ -309,45 +309,58 @@ app.get("/api/rooms", async (req, res) => {
   }
 });
 
-// Remove details of a room (Update status to 3)
-app.put("/api/rooms/:id", async (req, res) => {
+// Remove a room (Update status to 3)
+app.post('/api/update-room-status', (req, res) => {
+  const { id, status } = req.body;  
+
+  if (!id || status === undefined) {
+    return res.status(400).json({ error: 'Room id and status are required.' });
+  }
+
+  let currentData;
   try {
-    const { id } = req.params;
-    const { status } = req.body; 
+    currentData = require(dataFilePath);
+  } catch (error) {
+    console.error('Error loading details.js:', error);
+    return res.status(500).json({ error: 'Failed to load data.js file' });
+  }
 
-    if (status !== 3) { 
-      return res.status(400).json({ error: "Invalid status value for deletion." });
-    }
+  const roomIndex = currentData.findIndex((room) => room.sys.id === id);
 
-    const updatedRoom = await Room.findByIdAndUpdate(
-      id,
-      { status: 3 }, 
-      { new: true }
-    );
+  if (roomIndex === -1) {
+    return res.status(404).json({ error: 'Room not found.' });
+  }
 
-    if (!updatedRoom) {
-      return res.status(404).json({ error: "Room not found." });
-    }
+  currentData[roomIndex].fields.status = status;
+  console.log(`Updated status of room with id: ${id} to status: ${status}`);
 
-    res.status(200).json({ message: "Room status updated to deleted." });
-  } catch (err) {
-    res.status(500).json({ error: "Error updating room status." });
+  try {
+    fs.writeFileSync(dataFilePath, `module.exports = ${JSON.stringify(currentData, null, 2)};`, 'utf8');
+    console.log('Room status updated successfully');
+    res.status(200).json({ message: 'Room status updated successfully' });
+  } catch (error) {
+    console.error('Error writing to details.js file:', error);
+    return res.status(500).json({ error: 'Failed to write to details.js file' });
   }
 });
 
 // Serve static files from uploads folder
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
-
-// Path to the data.js file (assuming it's in the same directory as server.js)
 const dataFilePath = path.join(__dirname, 'details.js');
 
 // API endpoint to update the data.js file
 app.post('/api/update-local-data', (req, res) => {
-  const newRoomData = req.body; // Access req.body directly
+  const newRoomData = req.body; 
 
   if (!newRoomData.sys || !newRoomData.fields) {
     return res.status(400).json({ error: 'Invalid room data format' });
   }
+
+  newRoomData.fields.images = newRoomData.fields.images.map((img) => {
+    const imageUrl = img.fields.file.url;
+    const imageName = path.basename(imageUrl).replace(/^\d+_/, ""); 
+    return { fields: { file: { url: imageName } } };
+  });
 
   console.log('Received new room data:', newRoomData);
 
@@ -360,8 +373,20 @@ app.post('/api/update-local-data', (req, res) => {
     return res.status(500).json({ error: 'Failed to parse data.js file' });
   }
 
-  // Step 2: Append the new room data
-  currentData.push(newRoomData);
+  // Step 2: Check if room with the same id exists
+  const existingRoomIndex = currentData.findIndex(
+    (room) => room.sys.id === newRoomData.sys.id
+  );
+
+  if (existingRoomIndex !== -1) {
+    // Overwrite existing room data
+    currentData[existingRoomIndex] = newRoomData;
+    console.log(`Updated room with id: ${newRoomData.sys.id}`);
+  } else {
+    // Append new room data if id does not exist
+    currentData.push(newRoomData);
+    console.log(`Added new room with id: ${newRoomData.sys.id}`);
+  }
 
   // Step 3: Write back to the file
   try {
@@ -373,6 +398,7 @@ app.post('/api/update-local-data', (req, res) => {
     return res.status(500).json({ error: 'Failed to write to data.js file' });
   }
 });
+
 
 // API endpoint to fetch the whole data.js
 app.get('/api/get-room-data', (req, res) => {

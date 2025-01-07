@@ -1,7 +1,5 @@
 import React, { Component } from "react";
-
-// import data
-import items from "../Data/data";
+import fetchData from "../Data/data"; // Import the fetchData function
 
 // react context-api
 const RoomContext = React.createContext();
@@ -23,55 +21,67 @@ class RoomProvider extends Component {
     pets: false,
   };
 
-  // getDate
+  // Fetch data when the component mounts
   componentDidMount() {
-    // this.getData
-    let rooms = this.formatDate(items);
-    let featuredRooms = rooms.filter((room) => room.featured === true);
-
-    let maxPrice = Math.max(...rooms.map((item) => item.price));
-    let maxSize = Math.max(...rooms.map((item) => item.size));
-
-    this.setState({
-      rooms,
-      featuredRooms,
-      sortedRooms: rooms,
-      loading: false,
-      price: maxPrice,
-      maxPrice,
-      maxSize,
-    });
+    this.getData();
   }
 
-  formatDate(items) {
-    let tempItems = items.map((item) => {
-      let id = item.sys.id;
-      let images = item.fields.images.map((image) => image.fields.file.url);
+  // Fetch and format data
+  getData = async () => {
+    try {
+      // Fetch data from the backend
+      let items = await fetchData();
 
-      let room = { ...item.fields, images, id };
+      // Format the data
+      let rooms = this.formatData(items);
+
+      // Find featured rooms
+      let featuredRooms = rooms.filter((room) => room.featured === true);
+
+      // Determine max price and size
+      let maxPrice = Math.max(...rooms.map((item) => item.price));
+      let maxSize = Math.max(...rooms.map((item) => item.size));
+
+      // Set the state with the fetched and formatted data
+      this.setState({
+        rooms,
+        featuredRooms,
+        sortedRooms: rooms,
+        loading: false,
+        price: maxPrice,
+        maxPrice,
+        maxSize,
+      });
+    } catch (error) {
+      console.error("Error fetching room details:", error);
+    }
+  };
+
+  // Format data to match the state structure
+  formatData(items) {
+    let tempItems = items.map((item) => {
+      let id = item.id; // Assuming id is already formatted in fetchData
+      let images = item.images; // Images are already formatted as URLs
+
+      // Return the formatted room object
+      let room = { ...item, images, id };
       return room;
     });
     return tempItems;
   }
 
+  // Find a specific room by slug
   getRoom = (slug) => {
     let tempRooms = [...this.state.rooms];
     const room = tempRooms.find((room) => room.slug === slug);
     return room;
   };
 
+  // Handle filter changes
   handleChange = (event) => {
-    /* const type = event.target.type;
-    const name = event.target.name;
-    const value = event.target.value; */
-    /* console.log(
-      `this is type: ${type}, this is name: ${name}, this is value: ${value}`
-    ); */
-
     const target = event.target;
     const value = target.type === "checkbox" ? target.checked : target.value;
     const name = event.target.name;
-    console.log(target, value, name);
 
     this.setState(
       {
@@ -81,6 +91,7 @@ class RoomProvider extends Component {
     );
   };
 
+  // Filter rooms based on current state
   filterRooms = () => {
     let {
       rooms,
@@ -93,42 +104,42 @@ class RoomProvider extends Component {
       pets,
     } = this.state;
 
-    // all the room
+    // All rooms
     let tempRooms = [...rooms];
 
-    // transform value
+    // Transform values
     capacity = parseInt(capacity);
     price = parseInt(price);
 
-    // filter by type
+    // Filter by type
     if (type !== "all") {
       tempRooms = tempRooms.filter((room) => room.type === type);
     }
 
-    // filter by capacity
+    // Filter by capacity
     if (capacity !== 1) {
       tempRooms = tempRooms.filter((room) => room.capacity >= capacity);
     }
 
-    // filter by price
+    // Filter by price
     tempRooms = tempRooms.filter((room) => room.price <= price);
 
-    // filter bt size
+    // Filter by size
     tempRooms = tempRooms.filter(
       (room) => room.size >= minSize && room.size <= maxSize
     );
 
-    // filter by breakfast
+    // Filter by breakfast
     if (breakfast) {
       tempRooms = tempRooms.filter((room) => room.breakfast === true);
     }
 
-    // filter by pets
+    // Filter by pets
     if (pets) {
       tempRooms = tempRooms.filter((room) => room.pets === true);
     }
 
-    // change state
+    // Update state with filtered rooms
     this.setState({
       sortedRooms: tempRooms,
     });
@@ -151,6 +162,7 @@ class RoomProvider extends Component {
 
 const RoomConsumer = RoomContext.Consumer;
 
+// Higher-order component to consume Room context
 export function withRoomConsumer(Component) {
   return function ConsumerWrapper(props) {
     return (
