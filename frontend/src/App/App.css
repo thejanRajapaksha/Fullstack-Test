@@ -88,6 +88,7 @@ h6 {
 }
 /* end of globals */
 /* Navbar */
+/* Navbar */
 .navbar {
   position: fixed;
   top: 0;
@@ -124,9 +125,10 @@ h6 {
   color: var(--mainBlack);
   transition: var(--mainTransition);
   text-align: center;
-  font-size: 1rem;
-  font-weight: 600;
+  font-size: 20px;
+  font-weight: 650;
   letter-spacing: var(--mainSpacing);
+  
 }
 .nav-links a:hover {
   color: var(--primaryColor);
@@ -155,6 +157,13 @@ h6 {
     padding: 0.5rem 0;
   }
 }
+
+.nav-header img{
+  flex: auto;
+  width: 200px;
+  height: 50px;
+}
+
 /* Profile circle styling */
 .user-profile {
   position: relative;

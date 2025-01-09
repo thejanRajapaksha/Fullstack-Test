@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
-import Logo from "../../assets/img/svg/logo.svg";
+import Logo from "../../assets/img/svg/Logoi.png";
 import { FaAlignRight, FaUserCircle } from "react-icons/fa";
 
 export default class Navbar extends Component {
@@ -20,22 +20,22 @@ export default class Navbar extends Component {
   };
 
   handleLogout = () => {
-    // Clear token and navigate to login
     localStorage.removeItem("token");
     localStorage.removeItem("userData");
     window.location.href = "/login";
   };
 
   render() {
+    const user = JSON.parse(localStorage.getItem("userData"));
+    const isAdmin = user && user.email === "admin@gmail.com";
+
     return (
       <nav className="navbar">
         <div className="nav-center">
           <div className="nav-header">
-            {/* App logo */}
             <Link to="/">
               <img src={Logo} alt="Reach Resort" />
             </Link>
-            {/* Navbar toggle button */}
             <button
               type="button"
               className="nav-btn"
@@ -44,7 +44,6 @@ export default class Navbar extends Component {
               <FaAlignRight className="nav-icon" />
             </button>
           </div>
-          {/* Navbar links */}
           <ul
             className={this.state.isOpen ? "nav-links show-nav" : "nav-links"}
           >
@@ -59,29 +58,23 @@ export default class Navbar extends Component {
             </li>
             <li>
               <Link to="/contact-us">Contact Us</Link>
-            </li>           
-            {localStorage.getItem("userData") && JSON.parse(localStorage.getItem("userData")).name === "admin" && (
+            </li>
+            {isAdmin && (
               <li>
                 <Link to="/admin">Admin Panel</Link>
               </li>
             )}
-            {!localStorage.getItem("token") && (
-              <li>
-                <Link to="/login">Login</Link>
-              </li>
-            )}
           </ul>
 
-          {/* Always show profile icon */}
           <div className="user-profile">
             <FaUserCircle
-              size={40} // Adjust size
-              color="var(--primaryColor)" // Adjust color
+              size={40}
+              color="var(--primaryColor)"
               onClick={this.handleProfileClick}
             />
             {this.state.isProfileMenuOpen && (
               <div className="profile-dropdown">
-                {localStorage.getItem("token") ? (
+                {user ? (
                   <>
                     <Link to="/profile">View Profile</Link>
                     <button onClick={this.handleLogout}>Logout</button>
