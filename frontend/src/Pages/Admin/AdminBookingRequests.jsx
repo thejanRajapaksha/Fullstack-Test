@@ -126,8 +126,8 @@ const BookingRequestPage = () => {
                   onChange={handleInputChange}
                 />
               </label>
-              <button type="submit">Update Booking</button>
-              <button type="button" onClick={() => setIsEditing(false)}>
+              <button className="edit-button" type="submit">Update Booking</button>
+              <button className="delete-button" type="button" onClick={() => setIsEditing(false)}>
                 Cancel
               </button>
             </form>
@@ -154,8 +154,8 @@ const BookingRequestPage = () => {
                     <td>{new Date(booking.checkIn).toLocaleDateString()}</td>
                     <td>{new Date(booking.checkOut).toLocaleDateString()}</td>
                     <td>
-                      <button onClick={() => handleEditClick(booking)}>Edit</button>
-                      <button onClick={() => handleDelete(booking.bookingId)}>Delete</button>
+                      <button className="edit-button" onClick={() => handleEditClick(booking)}> Edit</button>
+                      <button className="delete-button" onClick={() => handleDelete(booking.bookingId)}> Delete</button>
                     </td>
                   </tr>
                 ))}
