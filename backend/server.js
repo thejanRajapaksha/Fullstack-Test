@@ -7,12 +7,13 @@ const jwt = require("jsonwebtoken");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
+const Stripe = require("stripe");
 
 const app = express();
 const PORT = 5000;
 
 // JWT secret key
-const JWT_SECRET = "my_secret_key"; 
+const JWT_SECRET = "my_secret_key";
 
 // Middleware
 app.use(cors());
@@ -21,6 +22,9 @@ app.use(bodyParser.json());
 // MongoDB Atlas Connection
 const mongoURI =
   "mongodb+srv://rajapakshalista41:pAfDjUKDCOxI3or3@cluster0.1rcni.mongodb.net/Hotel_DB?retryWrites=true&w=majority&appName=Cluster0";
+
+// Stripe Initialization
+const stripe = Stripe("sk_test_51Qcl5rGzX1rLyJV9nzPbMaMbPUYlZEf70G5jMJaDa4IOiq5lfKSmyEuKAodw5xUUnN60gCz7W1Mmu5g14JD3nMrN00iyXkDt0I"); // Replace with your Stripe secret key
 
 mongoose
   .connect(mongoURI, {
@@ -93,9 +97,9 @@ app.post("/login", async (req, res) => {
     }
 
     if (user.status === 2) {
-      return res.status(403).json({ 
-        success: false, 
-        error: "Your account has been deactivated by the admin." 
+      return res.status(403).json({
+        success: false,
+        error: "Your account has been deactivated by the admin."
       });
     }
 
@@ -140,6 +144,10 @@ const authenticateToken = (req, res, next) => {
 };
 
 
+
+
+// contact us msg backend
+
 // Contact Us Route (Without Authentication)
 app.post("/contact-us", async (req, res) => {
   const { email, message, name, userId } = req.body;
@@ -183,6 +191,10 @@ app.get("/messages", authenticateToken, async (req, res) => {
     res.status(500).json({ success: false, message: "An error occurred while fetching messages." });
   }
 });
+
+
+
+// user profile update
 
 app.put("/update-profile", authenticateToken, async (req, res) => {
   const userId = req.user.userId; // Retrieved from token by the authenticateToken middleware
@@ -311,7 +323,7 @@ app.get("/api/rooms", async (req, res) => {
 
 // Remove a room (Update status to 3)
 app.post('/api/update-room-status', (req, res) => {
-  const { id, status } = req.body;  
+  const { id, status } = req.body;
 
   if (!id || status === undefined) {
     return res.status(400).json({ error: 'Room id and status are required.' });
@@ -350,7 +362,7 @@ const dataFilePath = path.join(__dirname, 'details.js');
 
 // API endpoint to update the data.js file
 app.post('/api/update-local-data', (req, res) => {
-  const newRoomData = req.body; 
+  const newRoomData = req.body;
 
   if (!newRoomData.sys || !newRoomData.fields) {
     return res.status(400).json({ error: 'Invalid room data format' });
@@ -358,7 +370,7 @@ app.post('/api/update-local-data', (req, res) => {
 
   newRoomData.fields.images = newRoomData.fields.images.map((img) => {
     const imageUrl = img.fields.file.url;
-    const imageName = path.basename(imageUrl).replace(/^\d+_/, ""); 
+    const imageName = path.basename(imageUrl).replace(/^\d+_/, "");
     return { fields: { file: { url: imageName } } };
   });
 
@@ -438,7 +450,7 @@ app.get("/api/guestManagement", async (req, res) => {
 // Update user details and status
 app.put("/api/guestManagement/:id", async (req, res) => {
   const { name, email, status } = req.body;
-  
+
   try {
     const updatedUser = await User.findByIdAndUpdate(
       req.params.id,
@@ -451,6 +463,178 @@ app.put("/api/guestManagement/:id", async (req, res) => {
   }
 });
 // End Guest Management
+
+
+// Step 1: Define the Booking Schema
+const bookingSchema = new mongoose.Schema({
+  guestName: String,
+  userId: String,
+  bookingId: String,
+  roomName: String,
+  price: Number,
+  guests: Number,
+  checkIn: Date,
+  checkOut: Date,
+  status: { type: Number, default: 1 }, // Default value for status
+});
+
+const Booking = mongoose.model('Booking', bookingSchema);
+
+// Step 2: Create the Booking Route
+// POST /api/bookings - To create a new booking
+app.post('/create-payment-intent', async (req, res) => {
+  try {
+    const { amount } = req.body; // Amount in cents
+
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount,
+      currency: 'usd',
+    });
+
+    res.send({ clientSecret: paymentIntent.client_secret });
+  } catch (err) {
+    res.status(500).send({ error: err.message });
+  }
+});
+
+// Booking creation endpoint
+app.post('/api/bookings', async (req, res) => {
+  try {
+    const bookingDetails = req.body;
+    
+    if (!bookingDetails.guestName || !bookingDetails.roomName || !bookingDetails.price) {
+      return res.status(400).json({ message: "Missing booking details" });
+    }
+
+    // Create new booking in the database
+    const booking = new Booking(bookingDetails);
+    await booking.save();
+
+    res.status(201).json({ message: "Booking saved successfully", booking });
+  } catch (error) {
+    console.error("Error saving booking:", error);
+    res.status(500).json({ message: "Error saving booking", error: error.message });
+  }
+});
+// Backend - Express login route (server.js)
+
+
+
+  // Fetch only active bookings (status: 1)
+app.get('/api/bookings', async (req, res) => {
+  try {
+    const bookings = await Booking.find({ status: 1 }); // Fetch bookings with status: 1
+    res.status(200).json(bookings);
+  } catch (error) {
+    console.error("Error fetching bookings:", error);
+    res.status(500).json({ message: "Failed to fetch bookings" });
+  }
+});
+
+
+  // Update Booking Details (PUT)
+  app.put('/api/bookings/:id', async (req, res) => {
+  try {
+    const bookingId = req.params.id;
+    const updatedBooking = req.body;
+
+    const booking = await Booking.findOneAndUpdate(
+      { bookingId },
+      updatedBooking,
+      { new: true }
+    );
+
+    if (!booking) {
+      return res.status(404).json({ message: 'Booking not found' });
+    }
+
+    res.json({ message: 'Booking updated successfully', booking });
+  } catch (error) {
+    console.error('Error updating booking:', error);
+    res.status(500).json({ message: 'Error updating booking', error: error.message });
+  }
+  });
+
+  // Delete Booking (soft delete)
+  app.delete('/api/bookings/:id', async (req, res) => {
+  try {
+    const bookingId = req.params.id;
+    const booking = await Booking.findOneAndUpdate(
+      { bookingId },
+      { status: 3 },
+      { new: true }
+    );
+
+    if (!booking) {
+      return res.status(404).json({ message: 'Booking not found' });
+    }
+
+    res.json({ message: 'Booking deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting booking:', error);
+    res.status(500).json({ message: 'Error deleting booking', error: error.message });
+  }
+  });
+
+
+
+  
+
+// Fetch all messages
+app.get("/api/messages", async (req, res) => {
+  try {
+    const messages = await Message.find().sort({ createdAt: -1 }).exec();
+    res.status(200).json({ success: true, messages });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "An error occurred while fetching messages." });
+  }
+});
+
+// Edit a message by ID
+app.put("/api/messages/:id", async (req, res) => {
+  const { id } = req.params;
+  const { message } = req.body; // The updated message content from the request body
+
+  try {
+    const updatedMessage = await Message.findByIdAndUpdate(
+      id,
+      { message }, // Only update the message field
+      { new: true } // Return the updated document
+    );
+
+    if (!updatedMessage) {
+      return res.status(404).json({ error: "Message not found." });
+    }
+
+    res.status(200).json({ success: true, message: updatedMessage });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "An error occurred while updating the message." });
+  }
+});
+
+// Delete a message by ID
+app.delete("/api/messages/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const deletedMessage = await Message.findByIdAndDelete(id);
+
+    if (!deletedMessage) {
+      return res.status(404).json({ error: "Message not found." });
+    }
+
+    res.status(200).json({ success: true, message: "Message deleted successfully." });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "An error occurred while deleting the message." });
+  }
+});
+
+
+
+
 
 // Start server
 app.listen(PORT, () => {
