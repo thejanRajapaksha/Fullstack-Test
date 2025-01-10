@@ -1,21 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { Link, useHistory } from "react-router-dom";
-
-// import assets
 import defaultBcg from "../assets/img/jpeg/room-1.jpeg";
-
-// import components
 import Banner from "../Components/Banner/Banner";
 import { RoomContext } from "../Context/Context";
 import StyledHero from "../Components/StyledHero/StyledHero";
 
 export default function SingleRoom(props) {
-  const history = useHistory();  // Use useHistory for React Router v5
-  const { getRoom } = React.useContext(RoomContext);  // Using context to get room data
+  const history = useHistory();  
+  const { getRoom } = React.useContext(RoomContext);  
   const [room, setRoom] = useState(null);
   const [error, setError] = useState("");
-
-  const { slug } = props.match.params; // Get room slug from URL params
+  const { slug } = props.match.params; 
 
   useEffect(() => {
     const roomData = getRoom(slug);

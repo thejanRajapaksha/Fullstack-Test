@@ -10,7 +10,7 @@ function RoomManagement() {
     capacity: "",
     price: "",
     size: "",
-    room_type: "Single", // Default room type
+    room_type: "Single", 
     pets: false,
     breakfast: false,
     description: "",

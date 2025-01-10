@@ -38,7 +38,7 @@ function ContactUs() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          userId,  // Send the userId along with other details
+          userId,  
           email,
           name,
           message,
@@ -49,7 +49,7 @@ function ContactUs() {
 
       if (response.ok) {
         setSuccess(true);
-        setError(""); // Clear previous errors
+        setError(""); 
         setName("");
         setEmail("");
         setMessage("");

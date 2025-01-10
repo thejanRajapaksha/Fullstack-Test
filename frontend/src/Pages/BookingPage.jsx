@@ -20,7 +20,7 @@ const BookingPage = () => {
   useEffect(() => {
     const storedUserData = localStorage.getItem("userData");
     if (storedUserData) {
-      setUserData(JSON.parse(storedUserData)); // Parse the JSON string back into an object
+      setUserData(JSON.parse(storedUserData)); 
     }
   }, []);
 

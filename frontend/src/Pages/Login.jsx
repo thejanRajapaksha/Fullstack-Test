@@ -5,7 +5,7 @@ function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const history = useHistory(); // Using useHistory instead of useNavigate
+  const history = useHistory(); 
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -30,7 +30,7 @@ function Login() {
           console.log("Token and user data saved:", data.token, data.user); // Log the token and user data to the console
   
           // Navigate to the home page or another protected route after successful login
-          history.push("/"); // Navigate to the home page
+          history.push("/"); 
         } else {
           setError(data.error || "Invalid email or password.");
         }

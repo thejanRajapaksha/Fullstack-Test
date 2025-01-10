@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 
 const BookingRequestPage = () => {
   const [bookings, setBookings] = useState([]);
-  const [editBooking, setEditBooking] = useState(null); // State to track which booking is being edited
+  const [editBooking, setEditBooking] = useState(null); 
   const [isEditing, setIsEditing] = useState(false);
   const [updatedBooking, setUpdatedBooking] = useState({
     checkIn: '',

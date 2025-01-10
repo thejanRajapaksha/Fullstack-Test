@@ -5,7 +5,7 @@ function AdminPanel() {
   return (
     <div className="admin-panel">
       <h2>Admin Panel</h2>
-      <ul className="admin-links">  {/* Change to <ul> for list-style */}
+      <ul className="admin-links">  
         <li className="admin-link">
           <Link to="/admin/requests">Booking Requests</Link>
         </li>

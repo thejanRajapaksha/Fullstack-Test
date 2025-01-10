@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useHistory } from "react-router-dom";
-import Banner from "../Components/Banner/Banner";  // Assuming you have a Banner component
-import Hero from "../Components/Hero/Hero";        // Assuming you have a Hero component
+import Banner from "../Components/Banner/Banner";  
+import Hero from "../Components/Hero/Hero";        
 
 function Profile() {
   const [user, setUser] = useState(null);

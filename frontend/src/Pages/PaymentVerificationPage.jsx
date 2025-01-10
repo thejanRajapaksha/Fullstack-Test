@@ -84,7 +84,7 @@ const PaymentVerificationPage = () => {
           guests,
           checkIn,
           checkOut,
-          status: 1, // Default status for a new booking
+          status: 1, 
         };
 
         // Save booking to database
