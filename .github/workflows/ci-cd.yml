@@ -1,10 +1,7 @@
-name: CI/CD Pipeline
+name: Build and Deploy
 
 on:
   push:
-    branches:
-      - main
-  pull_request:
     branches:
       - main
 
@@ -12,50 +9,32 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
-    services:
-      mongodb:
-        image: mongo:latest
-        ports:
-          - 27017:27017
-        options: --health-cmd="mongo --eval 'db.runCommand({ ping: 1 })'" --health-interval=10s --health-timeout=5s --health-retries=5
-
     steps:
-      # Step 1: Checkout the code
-      - name: Checkout Code
-        uses: actions/checkout@v3
-
-      # Step 2: Set up Node.js
-      - name: Set up Node.js for Backend
+      - name: Use Node.js 20.x
         uses: actions/setup-node@v3
         with:
-          node-version: 18
-          working-directory: ./backend
+          node-version: 20
 
-      - name: Set up Node.js for Frontend
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
-          working-directory: ./frontend
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-      # Step 3: Install dependencies
-      - name: Install Backend Dependencies
-        run: npm install
-        working-directory: ./backend
-
-      - name: Install Frontend Dependencies
-        run: npm install
+      # Install dependencies and run tests for the frontend
+      - name: Install and Test Frontend
         working-directory: ./frontend
+        run: |
+          npm install
+          npm run test
 
-      # Step 4: Run tests (if you have any)
-      - name: Run Backend Tests
-        run: npm test
+      # Install dependencies and run tests for the backend
+      - name: Install and Test Backend
         working-directory: ./backend
+        run: |
+          npm install
+          npm run test
 
-      # Step 5: Build the frontend
-      - name: Build Frontend
-        run: npm run build
-        working-directory: ./frontend
-
-      # Step 6: Deploy using Docker Compose
-      - name: Deploy with Docker Compose
-        run: docker-compose up --build -d
+      # Install dependencies and run tests for the admin panel
+      - name: Install and Test Admin
+        working-directory: ./admin
+        run: |
+          npm install
+          npm run test
