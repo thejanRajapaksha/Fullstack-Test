@@ -1599,7 +1599,7 @@ input[type="text"], input[type="email"] {
 
 /* BookingPage styles */
 .booking-container {
-  max-width: 100%;
+  max-width: 40%;
   margin: 20px auto;
   padding: 20px;
   background-color: #fff;
@@ -1611,6 +1611,7 @@ input[type="text"], input[type="email"] {
   font-size: 22px;
   color: var(--primaryColor);
   margin-bottom: 15px;
+  text-align: center;
 }
 
 .booking-container .booking-form {
@@ -1682,12 +1683,12 @@ input[type="text"], input[type="email"] {
 
 /* PaymentPage styles */
 .payment-container {
-  max-width: 100%;
+  max-width: 30%;
   margin: 20px auto;
   padding: 20px;
   background-color: #fff;
   border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.404);
 }
 
 .payment-container h1 {
@@ -1705,11 +1706,13 @@ input[type="text"], input[type="email"] {
 /* Form field styles */
 .payment-container .form-field {
   display: flex;
-  flex-direction: column;
+  align-items: center; /* Align label and p vertically */
+  gap: 10px;
 }
 
 .payment-container .form-field label {
   font-weight: bold;
+  text-align: left;
 }
 
 .payment-container p {
@@ -1736,12 +1739,12 @@ input[type="text"], input[type="email"] {
 
 /* PaymentVerificationPage styles */
 .payment-verification-container {
-  max-width: 100%;
+  max-width: 30%;
   margin: 20px auto;
   padding: 20px;
   background-color: #fff;
   border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
 }
 
 .payment-verification-container h1 {
@@ -1753,7 +1756,8 @@ input[type="text"], input[type="email"] {
 
 .payment-verification-container .form-field {
   display: flex;
-  flex-direction: column;
+  align-items: center; /* Align label and p vertically */
+  gap: 10px;
 }
 
 .payment-verification-container .form-field label {
