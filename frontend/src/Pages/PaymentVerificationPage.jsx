@@ -185,11 +185,7 @@ const PaymentVerificationPage = () => {
           <p><strong>Final Price:</strong> ${finalPrice}</p>
           <p><strong>Check-In:</strong> {checkIn}</p>
           <p><strong>Check-Out:</strong> {checkOut}</p>
-          <button
-            onClick={() => history.push("/booking-confirmation")}
-          >
-            Confirm.
-          </button>
+          
         </div>
       )}
     </div>
