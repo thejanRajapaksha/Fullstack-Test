@@ -1,5 +1,5 @@
 import { render, screen, fireEvent } from '@testing-library/react';
-import ProfileDropdown from '../Pages/Profile';
+import ProfileDropdown from '../ProfileDropdown';
 
 test('renders the profile dropdown and handles logout', () => {
   render(<ProfileDropdown user={{ name: 'Test User' }} />);
