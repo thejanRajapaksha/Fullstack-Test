@@ -10,29 +10,31 @@ const fs = require("fs");
 const Stripe = require("stripe");
 
 const app = express();
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 
 // JWT secret key
-const JWT_SECRET = "my_secret_key";
+const JWT_SECRET = process.env.JWT_SECRET || "my_secret_key";
 
 // Middleware
 app.use(cors());
 app.use(bodyParser.json());
 
 // MongoDB Atlas Connection
-const mongoURI =
-  "mongodb+srv://rajapakshalista41:pAfDjUKDCOxI3or3@cluster0.1rcni.mongodb.net/Hotel_DB?retryWrites=true&w=majority&appName=Cluster0";
+// const mongoURI =
+//   "mongodb+srv://rajapakshalista41:pAfDjUKDCOxI3or3@cluster0.1rcni.mongodb.net/Hotel_DB?retryWrites=true&w=majority&appName=Cluster0";
 
 // Stripe Initialization
 const stripe = Stripe("sk_test_51Qcl5rGzX1rLyJV9nzPbMaMbPUYlZEf70G5jMJaDa4IOiq5lfKSmyEuKAodw5xUUnN60gCz7W1Mmu5g14JD3nMrN00iyXkDt0I"); // Replace with your Stripe secret key
 
-mongoose
-  .connect(mongoURI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
-  .then(() => console.log("MongoDB Connected"))
-  .catch((err) => console.log(err));
+if (process.env.NODE_ENV !== 'test') {
+  mongoose
+    .connect(process.env.MONGODB_URI || "mongodb+srv://rajapakshalista41:pAfDjUKDCOxI3or3@cluster0.1rcni.mongodb.net/Hotel_DB?retryWrites=true&w=majority&appName=Cluster0", {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    })
+    .then(() => console.log("MongoDB Connected"))
+    .catch((err) => console.log(err));
+}
 
 // User Schema
 const userSchema = new mongoose.Schema({
@@ -633,10 +635,11 @@ app.delete("/api/messages/:id", async (req, res) => {
 });
 
 
+if (process.env.NODE_ENV !== 'test') {
+  app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+  });
+}
 
+module.exports = app;  // Export for testing
 
-
-// Start server
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-});
